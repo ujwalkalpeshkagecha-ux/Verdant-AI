@@ -1,0 +1,60 @@
+{
+  "accuracy": 94.53,
+  "raw_test_accuracy": 94.53,
+  "test_loss": 0.1406,
+  "temperature": 0.3924,
+  "img_size": [
+    256,
+    256
+  ],
+  "test_samples": 128,
+  "classes": {
+    "angular_leaf_spot": {
+      "precision": 89.58,
+      "recall": 100.0,
+      "f1_score": 94.51,
+      "support": 43
+    },
+    "bean_rust": {
+      "precision": 97.37,
+      "recall": 86.05,
+      "f1_score": 91.36,
+      "support": 43
+    },
+    "healthy": {
+      "precision": 97.62,
+      "recall": 97.62,
+      "f1_score": 97.62,
+      "support": 42
+    }
+  },
+  "macro_avg": {
+    "precision": 94.86,
+    "recall": 94.56,
+    "f1_score": 94.49
+  },
+  "confusion_matrix": {
+    "labels": [
+      "angular_leaf_spot",
+      "bean_rust",
+      "healthy"
+    ],
+    "matrix": [
+      [
+        43,
+        0,
+        0
+      ],
+      [
+        5,
+        37,
+        1
+      ],
+      [
+        0,
+        1,
+        41
+      ]
+    ]
+  }
+}

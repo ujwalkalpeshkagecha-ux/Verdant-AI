@@ -1,0 +1,949 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Verdant AI — Botanical Pathology &amp; Field Vision</title>
+  <meta name="description" content="Precision plant pathology diagnostics for Phaseolus vulgaris combining calibrated MobileNetV2 vision, Grad-CAM explainability, and real-time 3D botanical dissection.">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Crect width='24' height='24' rx='5' fill='%23193940'/%3E%3Cpath d='M17 8C8 10 5.9 16.17 3.82 21.34L5.71 22L6.66 19.7C7.14 19.87 7.64 20 8 20C19 20 22 3 22 3C21 5 14 5.25 9 6.25C4 7.25 2 11.5 2 13.5C2 15.5 3.75 17.25 3.75 17.25C7 11 11 9 17 8Z' fill='%239BF272'/%3E%3C/svg%3E">
+
+  <link rel="stylesheet" href="/vendor/@fontsource/space-grotesk/index.css">
+  <link rel="stylesheet" href="/vendor/@fontsource/inter/index.css">
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+  <!-- Scroll Progress Hairline -->
+  <div class="scroll-progress-rail" aria-hidden="true">
+    <div id="scroll-progress-bar" class="scroll-progress-bar"></div>
+  </div>
+
+  <!-- Full-Viewport Cinema 3D Stage (PBR + RoomEnvironment + Bloom) -->
+  <canvas id="cinema-canvas" aria-label="Interactive 3D Botanical Dissection"></canvas>
+  <div class="cinema-vignette" aria-hidden="true"></div>
+  <div class="noise-overlay" aria-hidden="true"></div>
+
+  <!-- Custom Cursor -->
+  <div id="custom-cursor" class="custom-cursor" aria-hidden="true"></div>
+  <div id="custom-cursor-follower" class="custom-cursor-follower" aria-hidden="true"></div>
+
+  <!-- Editorial Fast Preloader -->
+  <div id="loading-screen" role="status" aria-live="polite">
+    <div class="loader-brand">
+      <span class="loader-title">VERDANT AI</span>
+      <span class="loader-sub">BOTANICAL LAB // 03</span>
+    </div>
+    <div class="loader-bar-wrap">
+      <div id="loader-bar" class="loader-bar"></div>
+    </div>
+    <div id="loader-count" class="loader-progress">00%</div>
+  </div>
+
+  <!-- Minimal Fixed Editorial Navbar -->
+  <header class="navbar">
+    <nav class="nav-inner">
+      <a href="#" class="brand-logo" aria-label="Verdant AI Home">
+        <div class="brand-mark">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M17 8C8 10 5.9 16.17 3.82 21.34L5.71 22L6.66 19.7C7.14 19.87 7.64 20 8 20C19 20 22 3 22 3C21 5 14 5.25 9 6.25C4 7.25 2 11.5 2 13.5C2 15.5 3.75 17.25 3.75 17.25C7 11 11 9 17 8Z"/>
+          </svg>
+        </div>
+        <span class="brand-name">Verdant</span>
+        <span class="brand-live-pill">256² CALIBRATED · LIVE</span>
+      </a>
+
+      <ul class="nav-links">
+        <li><a href="#dissection-theater" class="nav-link">Anatomy</a></li>
+        <li><a href="#scan" class="nav-link">Diagnose</a></li>
+        <li><a href="#pathology" class="nav-link">Field Guide</a></li>
+        <li><a href="#performance" class="nav-link">Benchmarks</a></li>
+      </ul>
+
+      <a href="#scan" class="btn btn-primary magnetic-btn" style="padding: 9px 20px; font-size: 0.84rem;">
+        <span>Scan Leaf</span>
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+          <path d="M7 17L17 7M17 7H7M17 7V17"/>
+        </svg>
+      </a>
+    </nav>
+  </header>
+
+  <main>
+    <!-- FULL-BLEED CINEMA THEATER: HERO + 4-CHAPTER SCROLL-OPENING 3D LEAF -->
+    <div id="cinema-drag-zone" class="cinema-theater">
+      <!-- HERO -->
+      <section class="hero-cinema">
+        <div class="container">
+          <div class="hero-editorial-col">
+            <div class="mono-kicker">
+              <span class="dot"></span>
+              <span>Phaseolus vulgaris · Calibrated Foliar Pathology</span>
+            </div>
+            <h1 class="headline-giant">
+              <span class="headline-line"><span>Diagnose plant</span></span>
+              <span class="headline-line"><span>disease in <em>one</em></span></span>
+              <span class="headline-line"><span><em>second.</em></span></span>
+            </h1>
+            <p class="hero-subline">
+              Scroll to dissect a living bean leaf layer by layer, simulate fungal lesions in 3D, or upload a field specimen for calibrated MobileNetV2 diagnosis, Grad-CAM saliency, and a full agronomic pathology dossier.
+            </p>
+
+            <div class="hero-cta-group">
+              <a href="#scan" class="btn btn-primary magnetic-btn">
+                <span>Launch Field Scanner</span>
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                  <path d="M5 12h14M13 5l7 7-7 7"/>
+                </svg>
+              </a>
+              <a href="#dissection-theater" class="btn btn-glass magnetic-btn">
+                <span>Dissect 3D Anatomy</span>
+              </a>
+            </div>
+
+            <div class="hero-telemetry-strip">
+              <div class="telemetry-cell">
+                <div class="telemetry-val" id="hero-stat-accuracy">94.5%</div>
+                <div class="telemetry-label">Held-Out Test Acc</div>
+              </div>
+              <div class="telemetry-cell">
+                <div class="telemetry-val">3 <span class="accent">Classes</span></div>
+                <div class="telemetry-label">All F1 &gt; 91%</div>
+              </div>
+              <div class="telemetry-cell">
+                <div class="telemetry-val">&lt;1<span class="accent">s</span></div>
+                <div class="telemetry-label">TTA + Grad-CAM</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Kinetic Botanical Telemetry Marquee -->
+        <div class="marquee-band" aria-hidden="true">
+          <div class="marquee-track">
+            <span><strong>01</strong> PHASEOLUS VULGARIS</span>
+            <span><strong>94.53%</strong> HELD-OUT TEST ACCURACY</span>
+            <span><strong>256²</strong> MOBILENETV2 FROZEN-BN</span>
+            <span><strong>GRAD-CAM</strong> OUT_RELU SALIENCY</span>
+            <span><strong>T=0.3924</strong> TEMPERATURE CALIBRATED</span>
+            <span><strong>OFFLINE</strong> ZERO-CDN ENGINE</span>
+            <span><strong>01</strong> PHASEOLUS VULGARIS</span>
+            <span><strong>94.53%</strong> HELD-OUT TEST ACCURACY</span>
+            <span><strong>256²</strong> MOBILENETV2 FROZEN-BN</span>
+            <span><strong>GRAD-CAM</strong> OUT_RELU SALIENCY</span>
+            <span><strong>T=0.3924</strong> TEMPERATURE CALIBRATED</span>
+            <span><strong>OFFLINE</strong> ZERO-CDN ENGINE</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- SCROLL-SCRUBBED BOTANICAL DISSECTION THEATER -->
+      <section id="dissection-theater" class="dissection-section">
+        <div class="container dissection-layout">
+          <!-- Left: 4 Floating Editorial Chapters Scrubbing the Full-Bleed 3D Leaf -->
+          <div id="dissection-chapters" class="dissection-chapters">
+            <article class="chapter-step is-active" data-chapter="0">
+              <div class="chapter-index">Layer 01 / 04 · Upper Surface Opens</div>
+              <h2 class="chapter-title">Cuticle &amp; Waxy Epidermis</h2>
+              <p class="chapter-body">
+                As you scroll, the glossy epidermal cuticle lifts forward in 3D space. Airborne <em>Uromyces</em> urediniospores and rain-splashed <em>Pseudocercospora</em> conidia adhere to this waxy shield during prolonged dew windows before penetrating open stomata.
+              </p>
+              <div class="chapter-spec-row">
+                <span class="chapter-spec-tag">Entry: Stomatal Pores</span>
+                <span class="chapter-spec-tag">Dew Trigger: &gt;10h</span>
+                <span class="chapter-spec-tag">Clearcoat PBR</span>
+              </div>
+            </article>
+
+            <article class="chapter-step" data-chapter="1">
+              <div class="chapter-index">Layer 02 / 04 · Vascular Skeleton</div>
+              <h2 class="chapter-title">Tapered Xylem &amp; Phloem Veins</h2>
+              <p class="chapter-body">
+                The tapered 3D midrib and staggered lateral veins detach into the mid-plane. <strong>Angular Leaf Spot</strong> lesions are physically bounded by these minor vascular conduits—forming razor-sharp geometric necrotic polygons visible from field distance.
+              </p>
+              <div class="chapter-spec-row">
+                <span class="chapter-spec-tag">Tapered Midrib + 16 Ribs</span>
+                <span class="chapter-spec-tag">Geometric Lesion Wall</span>
+              </div>
+            </article>
+
+            <article class="chapter-step" data-chapter="2">
+              <div class="chapter-index">Layer 03 / 04 · Photosynthetic Core</div>
+              <h2 class="chapter-title">Palisade Mesophyll Matrix</h2>
+              <p class="chapter-body">
+                Behind the vascular ribs, the cellular chlorophyll matrix unfolds. Inside this spongy parenchyma, <strong>Bean Rust</strong> expands mycelial colonies that erupt outward into dusty cinnamon-brown spore pustules, rapidly dehydrating the host leaf.
+              </p>
+              <div class="chapter-spec-row">
+                <span class="chapter-spec-tag">190 Instanced Cells</span>
+                <span class="chapter-spec-tag">Uredinial Pustule Origin</span>
+              </div>
+            </article>
+
+            <article class="chapter-step" data-chapter="3">
+              <div class="chapter-index">Layer 04 / 04 · Explainable Vision</div>
+              <h2 class="chapter-title">Grad-CAM Neural Attention Field</h2>
+              <p class="chapter-body">
+                Finally, spatial gradients from MobileNetV2's final convolutional layer (<code>out_relu</code>, 8×8×1280) project directly across the specimen—verifying that every classification focuses strictly on fungal lesions rather than soil or lighting artifacts.
+              </p>
+              <div class="chapter-spec-row">
+                <span class="chapter-spec-tag">TTA Averaged</span>
+                <span class="chapter-spec-tag">Temp-Scaled Confidence</span>
+                <span class="chapter-spec-tag">Click Result → Full Dossier</span>
+              </div>
+            </article>
+          </div>
+
+          <!-- Right: Transparent Sticky Telemetry HUD + Live 3D Layer & Pathology Console -->
+          <div class="dissection-hud-col">
+            <div class="cinema-hud-top">
+              <span>DRAG ANYWHERE TO ORBIT 3D SPECIMEN</span>
+              <span id="hud-layer-readout" class="hud-pill">ASSEMBLED · 0%</span>
+            </div>
+
+            <div class="cinema-console">
+              <div class="console-row" role="group" aria-label="3D Anatomy Layers">
+                <span class="console-label">Anatomy</span>
+                <button type="button" class="layer-btn active" data-layer-preset="scroll">Scroll Sync</button>
+                <button type="button" class="layer-btn" data-layer-preset="assembled">Closed</button>
+                <button type="button" class="layer-btn" data-layer-preset="cuticle">Cuticle</button>
+                <button type="button" class="layer-btn" data-layer-preset="veins">Veins</button>
+                <button type="button" class="layer-btn" data-layer-preset="mesophyll">Cells</button>
+                <button type="button" class="layer-btn" data-layer-preset="gradcam">Grad-CAM</button>
+              </div>
+              <div class="console-row" role="group" aria-label="3D Leaf Surface Tone">
+                <span class="console-label">Specimen</span>
+                <button type="button" class="pathology-3d-btn active" data-path-3d="original">Original Leaf</button>
+                <button type="button" class="pathology-3d-btn" data-path-3d="chlorophyll">Chlorophyll</button>
+                <button type="button" class="pathology-3d-btn" data-path-3d="angular_leaf_spot">Angular Spot</button>
+                <button type="button" class="pathology-3d-btn" data-path-3d="bean_rust">Bean Rust</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- SOLID DARKROOM WORKSPACE FOR SCANNING, PATHOLOGY ATLAS & DATA STUDIO -->
+    <div id="workspace-backdrop" class="workspace-backdrop">
+
+      <!-- SECTION 3: FIELD DIAGNOSTIC SCANNER -->
+      <section id="scan" class="scan-section reveal-up">
+        <div class="container">
+          <div class="section-header-split">
+            <div>
+              <div class="mono-kicker"><span class="dot"></span><span>01 · Live Specimen Inference</span></div>
+              <h2 class="section-title">Upload a bean leaf specimen</h2>
+            </div>
+            <p class="section-subtitle">
+              Drop any close-up bean leaf photo for TTA inference, temperature-calibrated confidence, Grad-CAM lesion localization, and a full clickable pathology dossier.
+            </p>
+          </div>
+
+          <!-- Scanner Mode Toolbar (Single | Live Camera | Batch Audit) -->
+          <div class="scan-mode-bar" role="tablist" aria-label="Diagnostic Scan Modes">
+            <button type="button" class="scan-mode-btn active" data-scan-mode="single">Single Specimen</button>
+            <button type="button" class="scan-mode-btn" id="btn-open-camera" data-scan-mode="camera">Live Field Camera</button>
+            <button type="button" class="scan-mode-btn" data-scan-mode="batch">Batch Field Audit (Up to 15)</button>
+            <button type="button" class="scan-mode-btn" id="btn-open-compare-quick">Compare Two Scans</button>
+          </div>
+
+          <div class="scan-workspace">
+            <div>
+              <!-- SINGLE SCAN MODE -->
+              <div id="single-scan-pane">
+                <div id="scan-dropzone" class="scan-dropzone" tabindex="0" role="button" aria-label="Upload leaf image">
+                  <input type="file" id="file-input" accept="image/jpeg,image/png,image/webp" style="display: none;">
+
+                  <div id="dropzone-idle" class="dropzone-idle">
+                    <div class="upload-icon-frame">
+                      <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                        <polyline points="17 8 12 3 7 8"/>
+                        <line x1="12" y1="3" x2="12" y2="15"/>
+                      </svg>
+                    </div>
+                    <div class="dropzone-title">Drop leaf photograph here, or click to browse</div>
+                    <div class="dropzone-sub">JPEG, PNG, or WebP up to 5MB · Automatic leaf presence &amp; uncertainty verification</div>
+                  </div>
+
+                  <div id="preview-container" class="preview-container">
+                    <div class="image-preview-frame">
+                      <img id="preview-img" src="" alt="Specimen Preview">
+                      <div class="laser-line"></div>
+                    </div>
+
+                    <div class="preview-actions">
+                      <button type="button" id="btn-scan" class="btn btn-primary magnetic-btn">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                          <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                          <polyline points="22 4 12 14.01 9 11.01"/>
+                        </svg>
+                        <span>Scan Leaf</span>
+                      </button>
+                      <button type="button" id="btn-clear" class="btn btn-glass">
+                        <span>Replace Photo</span>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- BATCH FIELD AUDIT MODE -->
+              <div id="batch-scan-pane" style="display: none;">
+                <div id="batch-dropzone" class="scan-dropzone" tabindex="0" role="button" aria-label="Upload multiple leaf images for batch field audit">
+                  <input type="file" id="batch-file-input" accept="image/jpeg,image/png,image/webp" multiple style="display: none;">
+                  <div class="dropzone-idle">
+                    <div class="upload-icon-frame">
+                      <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                        <rect x="3" y="3" width="7" height="7"/>
+                        <rect x="14" y="3" width="7" height="7"/>
+                        <rect x="14" y="14" width="7" height="7"/>
+                        <rect x="3" y="14" width="7" height="7"/>
+                      </svg>
+                    </div>
+                    <div class="dropzone-title">Select 2–15 leaf photos for a full Field Audit</div>
+                    <div class="dropzone-sub">Computes canopy health %, ranks worst-infected leaves first, and generates Grad-CAM for every specimen.</div>
+                    <div style="display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; margin-top: 8px;">
+                      <button type="button" id="btn-batch-browse" class="btn btn-primary">Select Multiple Photos</button>
+                      <button type="button" id="btn-batch-demo" class="btn btn-accent-outline">Run 6-Leaf Demo Field Audit</button>
+                    </div>
+                    <div id="batch-status-text" class="batch-status-note" style="text-align: center; margin-top: 6px; font-size: 0.82rem; color: var(--text-muted);"></div>
+                  </div>
+                </div>
+              </div>
+
+              <p class="scan-scope-note">Trained on bean leaves only.</p>
+            </div>
+
+            <aside class="studio-panel samples-panel">
+              <div>
+                <div class="samples-panel-title">Held-Out Test Slides</div>
+                <p class="samples-panel-desc">Click any validated specimen below to run a live end-to-end scan through the persistent neural worker.</p>
+              </div>
+              <div id="samples-container" class="samples-list"></div>
+            </aside>
+          </div>
+
+          <!-- BATCH AUDIT RESULTS PANEL -->
+          <div id="batch-results-panel" class="studio-panel batch-results-panel" style="display: none;">
+            <div class="batch-header">
+              <div>
+                <div class="mono-kicker" style="margin-bottom: 6px;"><span class="dot"></span><span>Batch Crop Audit · Field Health Summary</span></div>
+                <h3 id="batch-overall-status" style="font-size: 1.65rem;">—</h3>
+              </div>
+              <div class="batch-kpi-row">
+                <div class="batch-kpi"><span id="batch-kpi-total">0</span><small>Scanned</small></div>
+                <div class="batch-kpi"><span id="batch-kpi-healthy">0%</span><small>Healthy</small></div>
+                <div class="batch-kpi"><span id="batch-kpi-infected">0%</span><small>Avg Infected</small></div>
+              </div>
+            </div>
+            <div id="batch-cards-grid" class="batch-cards-grid"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SECTION 4: DIAGNOSTIC RESULTS PANEL -->
+      <section id="results-section" class="results-section">
+        <div class="container">
+          <div class="studio-panel results-card">
+            <!-- Calm Amber Warning State -->
+            <div id="uncertain-card" class="uncertain-warning-card" style="display: none;" role="alert">
+              <div class="uncertain-icon-wrap">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="12" cy="12" r="10"/>
+                  <line x1="12" y1="8" x2="12" y2="12"/>
+                  <line x1="12" y1="16" x2="12.01" y2="16"/>
+                </svg>
+              </div>
+              <div class="uncertain-content">
+                <div id="uncertain-badge" class="uncertain-badge">Uncertain Input</div>
+                <h3 id="uncertain-title" class="uncertain-title">Unable to Diagnose Reliably</h3>
+                <p id="uncertain-message" class="uncertain-message">Not confident. Please upload a clear, close-up photo of a single bean leaf.</p>
+                <div class="uncertain-actions">
+                  <button type="button" id="btn-uncertain-retry" class="btn btn-glass">Upload Another Leaf Photo</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Confident Results Grid -->
+            <div id="results-grid" class="results-grid">
+              <div class="comparison-container">
+                <div class="mono-kicker" style="margin-bottom: 4px;"><span class="dot"></span><span>Explainable Vision Lab · 4-Mode Inspector</span></div>
+                <h3 style="font-size: 1.35rem; margin-bottom: 8px;">Original Specimen vs. Lesion Attention</h3>
+
+                <!-- Explainability Lab Mode Switcher -->
+                <div class="xai-mode-bar" role="group" aria-label="Explainability Visual Modes">
+                  <button type="button" class="xai-mode-btn active" data-xai-mode="slider">Before / After</button>
+                  <button type="button" class="xai-mode-btn" data-xai-mode="gradcam">Grad-CAM Overlay</button>
+                  <button type="button" class="xai-mode-btn" data-xai-mode="heatmap">Pure Heatmap</button>
+                  <button type="button" class="xai-mode-btn" data-xai-mode="contour">Lesion Contours</button>
+                </div>
+
+                <div id="slider-wrapper" class="slider-wrapper">
+                  <img id="comparison-original" class="slider-img" src="" alt="Original Specimen">
+                  <img id="comparison-gradcam" class="slider-img slider-img-after" src="" alt="Grad-CAM Overlay">
+
+                  <div id="slider-handle" class="slider-handle">
+                    <div class="slider-handle-circle">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4">
+                        <polyline points="15 18 9 12 15 6"/>
+                      </svg>
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" style="margin-left: -6px;">
+                        <polyline points="9 18 15 12 9 6"/>
+                      </svg>
+                    </div>
+                  </div>
+
+                  <div id="slider-badge-left" class="slider-badge-left">Original</div>
+                  <div id="slider-badge-right" class="slider-badge-right">Grad-CAM</div>
+                </div>
+                <div id="slider-hint-text" class="slider-hint">Drag center divider to compare original foliage against convolutional activation hotspots.</div>
+
+                <!-- Live Model Explainability & Calibration Telemetry -->
+                <div id="xai-telemetry-box" class="xai-telemetry-box">
+                  <div class="xai-telemetry-title">Calibration &amp; TTA Telemetry (Live)</div>
+                  <div class="xai-telemetry-grid">
+                    <div class="xai-tel-item"><span>Raw → Calibrated</span><strong id="xai-raw-cal">—</strong></div>
+                    <div class="xai-tel-item"><span>Top-2 Margin</span><strong id="xai-margin">—</strong></div>
+                    <div class="xai-tel-item"><span>Entropy (0–1)</span><strong id="xai-entropy">—</strong></div>
+                    <div class="xai-tel-item"><span>TTA Flip Sync</span><strong id="xai-tta">—</strong></div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="diagnosis-container">
+                <div id="diagnosis-clickable-card" class="diagnosis-clickable-card" role="button" tabindex="0" aria-label="Open full pathology report">
+                  <div class="diagnosis-header">
+                    <div>
+                      <h3 id="disease-name" class="disease-name">—</h3>
+                      <div id="disease-pathogen" class="disease-pathogen">—</div>
+                    </div>
+                    <div id="severity-badge" class="severity-pill">—</div>
+                  </div>
+                  <p id="disease-summary-preview" class="diagnosis-summary-preview">Click to inspect the complete agronomic pathology dossier.</p>
+                  <div class="dossier-trigger-row">
+                    <span>Click for full breakdown · What is it · Causes · Prevention</span>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                      <path d="M5 12h14M13 5l7 7-7 7"/>
+                    </svg>
+                  </div>
+                </div>
+
+                <div class="confidence-box">
+                  <svg class="gauge-svg" viewBox="0 0 100 100">
+                    <circle class="gauge-track" cx="50" cy="50" r="40"/>
+                    <circle id="gauge-progress-circle" class="gauge-progress" cx="50" cy="50" r="40"/>
+                  </svg>
+                  <div class="confidence-info">
+                    <h4 id="confidence-val">0.0%</h4>
+                    <p>Calibrated Confidence (<span id="inference-time">—</span>)</p>
+                  </div>
+                </div>
+
+                <!-- Lesion Severity & Infected Area % Quantification -->
+                <div id="infected-area-box" class="infected-area-box">
+                  <div class="infected-area-head">
+                    <span class="infected-area-label">Estimated Infected Leaf Surface</span>
+                    <strong id="infected-area-val" class="infected-area-val">0.0%</strong>
+                  </div>
+                  <div class="infected-area-track">
+                    <div id="infected-area-fill" class="infected-area-fill" style="width: 0%;"></div>
+                  </div>
+                  <div class="infected-area-meta">
+                    <span id="infected-stage-text">Stage: —</span>
+                    <span id="infected-threshold-text">—</span>
+                  </div>
+                </div>
+
+                <div>
+                  <div class="mono-kicker" style="margin-bottom: 10px;"><span>Class Distribution · Click any class to inspect dossier</span></div>
+                  <div id="probabilities-container" class="probabilities-list"></div>
+                </div>
+
+                <div class="treatment-box">
+                  <div class="treatment-title">Immediate Field Actions</div>
+                  <ul id="treatment-list" class="treatment-list"></ul>
+                </div>
+
+                <div class="results-action-row">
+                  <button type="button" id="btn-open-full-dossier" class="btn btn-accent-outline" style="flex: 1;">
+                    <span>Full Pathology Dossier</span>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                      <path d="M7 17L17 7M17 7H7M17 7V17"/>
+                    </svg>
+                  </button>
+                  <button type="button" id="btn-export-pdf-results" class="btn btn-glass">
+                    <span>Export PDF Report</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ADDITIVE WORKSPACE: FIELD LOGBOOK + WEATHER OUTBREAK RISK CALCULATOR -->
+      <section id="field-tools" class="field-tools-section reveal-up">
+        <div class="container field-tools-grid">
+          <!-- Local Persistent Scan History & Logbook -->
+          <div class="studio-panel logbook-panel">
+            <div class="bento-img-header" style="margin-bottom: 14px;">
+              <div>
+                <div class="mono-kicker" style="margin-bottom: 6px;"><span class="dot"></span><span>Field Logbook · Local Storage</span></div>
+                <h3>Recent Scans (<span id="logbook-count">0</span>)</h3>
+              </div>
+              <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                <button type="button" id="btn-open-compare" class="layer-btn">Compare Two Scans</button>
+                <button type="button" id="btn-clear-logbook" class="layer-btn">Clear Log</button>
+              </div>
+            </div>
+            <p class="samples-panel-desc" style="margin-bottom: 16px;">Every scan is logged locally with thumbnail, infected %, and optional field plot note. Click any entry to reload it.</p>
+            <div id="logbook-list" class="logbook-list">
+              <div class="logbook-empty">No scans logged yet. Run a leaf scan or sample slide above to start recording your field logbook.</div>
+            </div>
+          </div>
+
+          <!-- Weather-Driven Outbreak Risk Calculator -->
+          <div class="studio-panel risk-panel">
+            <div class="bento-img-header" style="margin-bottom: 14px;">
+              <div>
+                <div class="mono-kicker" style="margin-bottom: 6px;"><span class="dot"></span><span>Microclimate Forecaster</span></div>
+                <h3>Outbreak Risk Calculator</h3>
+              </div>
+              <div class="risk-presets">
+                <button type="button" class="layer-btn" data-weather-preset="dry">Dry Sunny</button>
+                <button type="button" class="layer-btn" data-weather-preset="humid">Humid Rain</button>
+                <button type="button" class="layer-btn" data-weather-preset="dew">Cool Dew</button>
+              </div>
+            </div>
+
+            <div class="risk-sliders">
+              <div class="risk-slider-row">
+                <div class="risk-slider-head"><span>Ambient Temperature</span><strong id="val-temp">23°C</strong></div>
+                <input type="range" id="slider-temp" min="10" max="36" value="23" step="1">
+              </div>
+              <div class="risk-slider-row">
+                <div class="risk-slider-head"><span>Relative Humidity</span><strong id="val-humidity">82%</strong></div>
+                <input type="range" id="slider-humidity" min="30" max="100" value="82" step="1">
+              </div>
+              <div class="risk-slider-row">
+                <div class="risk-slider-head"><span>Continuous Leaf Wetness / Dew</span><strong id="val-wetness">11 hrs</strong></div>
+                <input type="range" id="slider-wetness" min="0" max="24" value="11" step="1">
+              </div>
+            </div>
+
+            <div class="risk-outputs">
+              <div class="risk-card">
+                <div class="risk-card-top">
+                  <span>Angular Leaf Spot</span>
+                  <span id="risk-spot-badge" class="risk-level-badge">—</span>
+                </div>
+                <div class="risk-meter-track"><div id="risk-spot-bar" class="risk-meter-fill"></div></div>
+                <div id="risk-spot-note" class="risk-card-note">—</div>
+              </div>
+              <div class="risk-card">
+                <div class="risk-card-top">
+                  <span>Bean Rust</span>
+                  <span id="risk-rust-badge" class="risk-level-badge">—</span>
+                </div>
+                <div class="risk-meter-track"><div id="risk-rust-bar" class="risk-meter-fill"></div></div>
+                <div id="risk-rust-note" class="risk-card-note">—</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SECTION 5: PATHOLOGY ATLAS -->
+      <section id="pathology" class="pathology-section reveal-up">
+        <div class="container">
+          <div class="section-header-split">
+            <div>
+              <div class="mono-kicker"><span class="dot"></span><span>02 · Botanical Pathology Atlas</span></div>
+              <h2 class="section-title">Inspect every class in full detail</h2>
+            </div>
+            <p class="section-subtitle">
+              Click any pathology dossier below to examine clinical symptoms, causal pathogen biology, environmental triggers, and long-term field prevention.
+            </p>
+          </div>
+
+          <div id="pathology-guide-grid" class="pathology-grid">
+            <article class="studio-panel pathology-card" data-disease-id="angular_leaf_spot" role="button" tabindex="0">
+              <div>
+                <div class="pathology-code-row">
+                  <span class="pathology-code">PATH-01 // FUNGAL</span>
+                  <span class="severity-pill severity-diseased">Moderate–High</span>
+                </div>
+                <h3>Angular Leaf Spot</h3>
+                <div class="pathology-sci">Pseudocercospora griseola</div>
+                <p class="pathology-excerpt">Sharp-edged, vein-bounded grey-brown necrotic blocks that trigger rapid lower-canopy yellowing and up to 80% yield loss in humid seasons.</p>
+              </div>
+              <div class="pathology-card-foot">
+                <span>Open Full Dossier</span>
+                <span>→</span>
+              </div>
+            </article>
+
+            <article class="studio-panel pathology-card" data-disease-id="bean_rust" role="button" tabindex="0">
+              <div>
+                <div class="pathology-code-row">
+                  <span class="pathology-code">PATH-02 // RUST</span>
+                  <span class="severity-pill severity-diseased">High Severity</span>
+                </div>
+                <h3>Bean Rust</h3>
+                <div class="pathology-sci">Uromyces appendiculatus</div>
+                <p class="pathology-excerpt">Explosive airborne rust erupting into powdery cinnamon-brown uredinial pustules with yellow halos across leaf undersides during cool-dew nights.</p>
+              </div>
+              <div class="pathology-card-foot">
+                <span>Open Full Dossier</span>
+                <span>→</span>
+              </div>
+            </article>
+
+            <article class="studio-panel pathology-card" data-disease-id="healthy" role="button" tabindex="0">
+              <div>
+                <div class="pathology-code-row">
+                  <span class="pathology-code">NORM-00 // BASELINE</span>
+                  <span class="severity-pill severity-healthy">Optimal</span>
+                </div>
+                <h3>Healthy Foliage</h3>
+                <div class="pathology-sci">Phaseolus vulgaris</div>
+                <p class="pathology-excerpt">Uniform chlorophyll density, intact waxy cuticle, and clean vascular margins. Includes preventive scouting schedules and microclimate targets.</p>
+              </div>
+              <div class="pathology-card-foot">
+                <span>Open Full Dossier</span>
+                <span>→</span>
+              </div>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <!-- SECTION 6: DARK-MODE DATA STUDIO BENCHMARKS -->
+      <section id="performance" class="performance-section reveal-up">
+        <div class="container">
+          <div class="section-header-split">
+            <div>
+              <div class="mono-kicker"><span class="dot"></span><span>03 · Held-Out Test Studio</span></div>
+              <h2 class="section-title">Verified benchmark performance</h2>
+            </div>
+            <p class="section-subtitle">
+              Evaluated exclusively on 128 unseen held-out iBeans test specimens with 0.00% offline-to-API variance, TTA averaging, and temperature scaling.
+            </p>
+          </div>
+
+          <div class="bento-grid">
+            <div class="studio-panel bento-stat-card">
+              <div class="bento-stat-top"><span>METRIC 01</span><span>N=128 HELD-OUT</span></div>
+              <div>
+                <div id="bento-acc" class="bento-num" data-count-target="94.5" data-is-percent="true">94.5%</div>
+                <div class="bento-label" style="margin-top: 10px;">Held-Out Test Accuracy</div>
+              </div>
+            </div>
+
+            <div class="studio-panel bento-stat-card">
+              <div class="bento-stat-top"><span>METRIC 02</span><span>MACRO</span></div>
+              <div>
+                <div id="bento-prec" class="bento-num" data-count-target="94.9" data-is-percent="true">94.9%</div>
+                <div class="bento-label" style="margin-top: 10px;">Macro Precision</div>
+              </div>
+            </div>
+
+            <div class="studio-panel bento-stat-card">
+              <div class="bento-stat-top"><span>METRIC 03</span><span>MACRO</span></div>
+              <div>
+                <div id="bento-rec" class="bento-num" data-count-target="94.6" data-is-percent="true">94.6%</div>
+                <div class="bento-label" style="margin-top: 10px;">Macro Recall</div>
+              </div>
+            </div>
+
+            <div class="studio-panel bento-stat-card">
+              <div class="bento-stat-top"><span>METRIC 04</span><span>ALL &gt; 91%</span></div>
+              <div>
+                <div id="bento-f1" class="bento-num" data-count-target="94.5" data-is-percent="true">94.5%</div>
+                <div class="bento-label" style="margin-top: 10px;">Macro F1-Score</div>
+              </div>
+            </div>
+
+            <!-- Interactive Dark-Mode Confusion Matrix (Populated live from metrics.json) -->
+            <div class="studio-panel bento-span-2 bento-data-card">
+              <div class="bento-img-header">
+                <h3>Interactive Confusion Matrix</h3>
+                <span class="bento-meta-tag">True (Rows) × Predicted (Cols)</span>
+              </div>
+              <div id="cm-studio-grid" class="cm-studio-grid"></div>
+            </div>
+
+            <!-- Live Per-Class Precision / Recall / F1 Studio Breakdown -->
+            <div class="studio-panel bento-span-2 bento-data-card">
+              <div class="bento-img-header">
+                <h3>Per-Class F1 &amp; Recall Telemetry</h3>
+                <span class="bento-meta-tag">Every Class &gt; 91% F1</span>
+              </div>
+              <div id="class-perf-list" class="class-perf-list"></div>
+            </div>
+          </div>
+
+          <!-- Raw Training Exports (Cleanly Framed) -->
+          <div class="raw-plots-grid">
+            <div class="studio-panel bento-data-card" style="padding: 20px;">
+              <div class="bento-img-header">
+                <h3 style="font-size: 1rem;">Training &amp; Validation Trajectories</h3>
+                <span class="bento-meta-tag">2-Phase Frozen-BN Curve</span>
+              </div>
+              <div class="bento-img-frame">
+                <img id="bento-curves-img" src="/results/accuracy_loss_curves.png" alt="Training and Validation Accuracy and Loss Curves">
+              </div>
+            </div>
+
+            <div class="studio-panel bento-data-card" style="padding: 20px;">
+              <div class="bento-img-header">
+                <h3 style="font-size: 1rem;">Exported Confusion Matrix Plot</h3>
+                <span class="bento-meta-tag">results/confusion_matrix.png</span>
+              </div>
+              <div class="bento-img-frame">
+                <img id="bento-cm-img" src="/results/confusion_matrix.png" alt="Exported Confusion Matrix">
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SECTION 7: PIPELINE ARCHITECTURE -->
+      <section id="how-it-works" class="how-section reveal-up">
+        <div class="container">
+          <div class="section-header-split">
+            <div>
+              <div class="mono-kicker"><span class="dot"></span><span>04 · Engineering Parity</span></div>
+              <h2 class="section-title">How each scan is verified</h2>
+            </div>
+            <p class="section-subtitle">
+              One shared preprocessing module guarantees exact bit-for-bit parity between offline evaluation and live HTTP predictions.
+            </p>
+          </div>
+
+          <div class="steps-grid">
+            <div class="studio-panel step-card">
+              <div class="step-num">01 / LEAF SANITY</div>
+              <h3 class="step-title">Foliage Verification</h3>
+              <p class="step-desc">Uploaded images undergo EXIF normalization and HSV foliage verification, rejecting non-leaf photos before classification.</p>
+            </div>
+
+            <div class="studio-panel step-card">
+              <div class="step-num">02 / BACKBONE</div>
+              <h3 class="step-title">256² MobileNetV2</h3>
+              <p class="step-desc">Two-phase transfer learning adapting the top 55 convolutional layers while keeping all BatchNormalization layers frozen.</p>
+            </div>
+
+            <div class="studio-panel step-card">
+              <div class="step-num">03 / CALIBRATION</div>
+              <h3 class="step-title">TTA &amp; Temp Scaling</h3>
+              <p class="step-desc">Averages original and mirrored passes, scales probabilities via validation temperature, and flags low-margin inputs as uncertain.</p>
+            </div>
+
+            <div class="studio-panel step-card">
+              <div class="step-num">04 / EXPLAINABILITY</div>
+              <h3 class="step-title">Grad-CAM &amp; Dossier</h3>
+              <p class="step-desc">Spatial gradients from <code>out_relu</code> overlay lesion attention onto your leaf photo alongside full causes and prevention.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- FOOTER -->
+      <footer class="footer">
+        <div class="container">
+          <div class="footer-top">
+            <div class="brand-logo">
+              <div class="brand-mark">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M17 8C8 10 5.9 16.17 3.82 21.34L5.71 22L6.66 19.7C7.14 19.87 7.64 20 8 20C19 20 22 3 22 3C21 5 14 5.25 9 6.25C4 7.25 2 11.5 2 13.5C2 15.5 3.75 17.25 3.75 17.25C7 11 11 9 17 8Z"/>
+                </svg>
+              </div>
+              <div>
+                <div class="brand-name">Verdant AI</div>
+                <div style="font-family: var(--font-mono); font-size: 0.68rem; color: var(--bone-dim); margin-top: 2px;">BOTANICAL PATHOLOGY &amp; FIELD VISION</div>
+              </div>
+            </div>
+
+            <div class="tech-badges">
+              <span class="tech-badge">Node.js + Express</span>
+              <span class="tech-badge">TensorFlow / Keras</span>
+              <span class="tech-badge">MobileNetV2 256²</span>
+              <span class="tech-badge">Grad-CAM</span>
+              <span class="tech-badge">Three.js PBR + Bloom</span>
+              <span class="tech-badge">GSAP ScrollTrigger</span>
+              <span class="tech-badge">Lenis</span>
+            </div>
+          </div>
+
+          <div class="footer-bottom">
+            <div>© 2026 Verdant AI · Calibrated Agricultural Pathology Platform</div>
+            <div>100% Local Offline Stack · Zero CDN Dependencies</div>
+          </div>
+        </div>
+      </footer>
+    </div>
+  </main>
+
+  <!-- FULL PATHOLOGY DOSSIER DRAWER -->
+  <div id="disease-dossier-modal" class="dossier-backdrop" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="dossier-title">
+    <aside class="dossier-drawer" data-lenis-prevent>
+      <div class="dossier-topbar">
+        <div id="dossier-topbar-meta" class="dossier-topbar-meta">PATHOLOGY DOSSIER // FULL BREAKDOWN</div>
+        <div class="dossier-topbar-actions">
+          <button type="button" id="dossier-pdf-btn" class="dossier-copy-btn">Export PDF</button>
+          <button type="button" id="dossier-copy-btn" class="dossier-copy-btn">Copy Report</button>
+          <button type="button" id="dossier-close-btn" class="dossier-close-btn" aria-label="Close pathology dossier">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="18" y1="6" x2="6" y2="18"/>
+              <line x1="6" y1="6" x2="18" y2="18"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Instant Class Switcher Tabs inside Drawer -->
+      <div class="dossier-class-tabs" role="tablist" aria-label="Switch pathology dossier">
+        <button type="button" class="dossier-class-tab" data-dossier-tab="angular_leaf_spot">Angular Leaf Spot</button>
+        <button type="button" class="dossier-class-tab" data-dossier-tab="bean_rust">Bean Rust</button>
+        <button type="button" class="dossier-class-tab" data-dossier-tab="healthy">Healthy Foliage</button>
+      </div>
+
+      <div id="dossier-scroll-body" class="dossier-scroll-body">
+        <div class="dossier-header-block">
+          <h2 id="dossier-title" class="dossier-title">—</h2>
+          <div id="dossier-sci-name" class="dossier-sci-name">—</div>
+          <div class="dossier-meta-pills">
+            <span id="dossier-severity-pill" class="severity-pill">—</span>
+            <span id="dossier-yield-pill" class="dossier-yield-pill">—</span>
+          </div>
+          <p id="dossier-summary" class="dossier-prose" style="margin-bottom: 0;">—</p>
+        </div>
+
+        <!-- Embedded Live Scanned Specimen Context -->
+        <div id="dossier-scan-strip" class="dossier-scan-strip">
+          <img id="dossier-orig-thumb" class="dossier-scan-thumb" src="" alt="Your Scanned Leaf">
+          <img id="dossier-gradcam-thumb" class="dossier-scan-thumb" src="" alt="Grad-CAM Overlay">
+          <div>
+            <div class="dossier-section-kicker" style="margin-bottom: 4px;">Your Active Scan</div>
+            <div id="dossier-scan-conf" style="font-family: var(--font-display); font-size: 1.25rem; font-weight: 600; color: var(--bone); margin-bottom: 4px;">—</div>
+            <div style="font-size: 0.8rem; color: var(--bone-muted);">Calibrated probability for this pathology class on your uploaded specimen.</div>
+          </div>
+        </div>
+
+        <section class="dossier-section">
+          <div class="dossier-section-kicker">01 · What Is The Issue</div>
+          <h4>Clinical Pathology &amp; Field Symptoms</h4>
+          <p id="dossier-what-overview" class="dossier-prose">—</p>
+          <div class="dossier-subheading">Diagnostic Visual Markers</div>
+          <ul id="dossier-symptoms-list" class="dossier-list"></ul>
+        </section>
+
+        <section class="dossier-section">
+          <div class="dossier-section-kicker">02 · How It Is Caused</div>
+          <h4>Etiology, Environmental Triggers &amp; Spread</h4>
+          <p id="dossier-cause-primary" class="dossier-prose">—</p>
+          <div id="dossier-triggers-grid" class="dossier-triggers-grid"></div>
+          <div class="dossier-subheading">Transmission &amp; Spread Vectors</div>
+          <ul id="dossier-vectors-list" class="dossier-list"></ul>
+        </section>
+
+        <section class="dossier-section">
+          <div class="dossier-section-kicker">03 · Immediate Treatment &amp; Containment</div>
+          <h4>Field Intervention Protocol</h4>
+          <div class="dossier-subheading">Immediate Cultural Containment</div>
+          <ul id="dossier-immediate-list" class="dossier-list"></ul>
+          <div class="dossier-subheading">Targeted Fungicide &amp; Biological Options</div>
+          <ul id="dossier-chemical-list" class="dossier-list"></ul>
+        </section>
+
+        <section class="dossier-section">
+          <div class="dossier-section-kicker">04 · How To Prevent It</div>
+          <h4>Long-Term Prevention Playbook</h4>
+          <ul id="dossier-prevention-list" class="dossier-list"></ul>
+        </section>
+      </div>
+    </aside>
+  </div>
+
+  <!-- LIVE FIELD CAMERA CAPTURE MODAL -->
+  <div id="camera-modal" class="utility-modal-backdrop" aria-hidden="true" role="dialog" aria-modal="true" aria-label="Live Field Camera Capture">
+    <div class="studio-panel utility-modal-box" data-lenis-prevent>
+      <div class="dossier-topbar" style="padding: 16px 24px;">
+        <div class="dossier-topbar-meta">LIVE FIELD CAMERA // OPTICAL CAPTURE</div>
+        <button type="button" id="camera-close-btn" class="dossier-close-btn" aria-label="Close camera">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+        </button>
+      </div>
+      <div class="camera-body">
+        <div class="camera-viewfinder">
+          <video id="camera-video" autoplay playsinline muted></video>
+          <canvas id="camera-canvas" style="display: none;"></canvas>
+          <div class="camera-reticle" aria-hidden="true">
+            <span class="ret-tl"></span><span class="ret-tr"></span>
+            <span class="ret-bl"></span><span class="ret-br"></span>
+            <span class="ret-hint">Center a single bean leaf inside frame</span>
+          </div>
+          <div id="camera-error-box" class="camera-error-box" style="display: none;"></div>
+        </div>
+        <div class="camera-controls">
+          <button type="button" id="btn-camera-snap" class="btn btn-primary">Capture &amp; Diagnose Leaf</button>
+          <button type="button" id="btn-camera-cancel" class="btn btn-glass">Cancel</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SIDE-BY-SIDE SCAN COMPARISON MODAL -->
+  <div id="compare-modal" class="utility-modal-backdrop" aria-hidden="true" role="dialog" aria-modal="true" aria-label="Side by Side Scan Comparison">
+    <div class="studio-panel utility-modal-box utility-modal-wide" data-lenis-prevent>
+      <div class="dossier-topbar" style="padding: 16px 24px;">
+        <div class="dossier-topbar-meta">COMPARATIVE PATHOLOGY // SIDE-BY-SIDE SCAN DIFF</div>
+        <div style="display: flex; gap: 10px; align-items: center;">
+          <button type="button" id="btn-compare-demo" class="dossier-copy-btn">Load Healthy vs Diseased Demo</button>
+          <button type="button" id="compare-close-btn" class="dossier-close-btn" aria-label="Close comparison">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+      <div class="compare-body">
+        <div class="compare-selectors">
+          <div class="compare-select-wrap">
+            <label for="compare-select-a">Specimen A (Baseline / Earlier)</label>
+            <select id="compare-select-a" class="compare-select"></select>
+          </div>
+          <div class="compare-select-wrap">
+            <label for="compare-select-b">Specimen B (Follow-Up / Comparison)</label>
+            <select id="compare-select-b" class="compare-select"></select>
+          </div>
+        </div>
+        <div id="compare-delta-banner" class="compare-delta-banner" style="display: none;"></div>
+        <div id="compare-columns" class="compare-columns">
+          <div class="logbook-empty" style="grid-column: 1 / -1;">Select two scans from your Field Logbook above, or click "Load Healthy vs Diseased Demo".</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Local Offline Vendor Scripts -->
+  <script src="/vendor/gsap/dist/gsap.min.js"></script>
+  <script src="/vendor/gsap/dist/ScrollTrigger.min.js"></script>
+  <script src="/vendor/lenis/dist/lenis.min.js"></script>
+
+  <!-- Three.js + Addons Local Import Map (100% Offline) -->
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "/vendor/three/build/three.module.js",
+      "three/addons/": "/vendor/three/examples/jsm/"
+    }
+  }
+  </script>
+
+  <script type="module" src="/js/main.js"></script>
+</body>
+</html>

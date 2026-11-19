@@ -1,0 +1,18 @@
+# Dependencies
+node_modules/
+.venv/
+__pycache__/
+*.pyc
+
+# Dataset (downloaded automatically on demand by train.py)
+data/
+
+# User uploads during live inference
+uploads/*
+!uploads/.gitkeep
+
+# Environment & Editor
+.env
+.DS_Store
+Thumbs.db
+*.log

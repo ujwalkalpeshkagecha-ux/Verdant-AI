@@ -1,0 +1,11 @@
+{
+  "temperature": 0.3924,
+  "img_size": [
+    256,
+    256
+  ],
+  "tta": true,
+  "val_accuracy_tta": 96.24,
+  "val_nll_before": 0.1817,
+  "val_nll_after": 0.0884
+}
